@@ -21,12 +21,14 @@ Firstly, download the pretrained BLIP model weights (BLIP with ViT-B, 14M) from 
   - VLAttack (ours)
   - [Co-Attack](https://arxiv.org/pdf/2206.09391.pdf)
   - [BERTAttack](https://arxiv.org/pdf/2004.09984.pdf)
+  - JointVLA (ours; shared text+image budget)
 
 - **Command**:
   Replace `METHOD_NAME` with your chosen options from above:
   ```bash
   python attack_vqa.py --method METHOD_NAME
   ```
+  For `JointVLA`, you can tune the shared text+image budget via flags like `--joint_epsilon`, `--joint_max_edits`, and `--joint_steps` (defaults mirror the original PGD/BERTAttack settings). The implementation lives in `BLIP_attack/JointVLA/vqa_attack.py`.
 ## Attack NLVR2
 1. Download the NLVR2 dataset from the original website, and then set the `image_root` in `./configs/nlvr.yaml` 
 2. Download the finetuned NLVR2 model weights from the original repo of [BLIP](https://github.com/salesforce/BLIP). Specifically, the finetuned model weights can be downloaded from [here](https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_base_nlvr.pth). Don't forget to set the `pretrain` in `./configs/nlvr.yaml` with the path of `model_base_nlvr.pth`. 
@@ -35,5 +37,3 @@ Firstly, download the pretrained BLIP model weights (BLIP with ViT-B, 14M) from 
 ```bash
 python attack_nlvr.py --method VLAttack
 ```
-
-
