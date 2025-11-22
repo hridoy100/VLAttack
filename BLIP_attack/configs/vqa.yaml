@@ -1,10 +1,10 @@
-vqa_root: '/data/ziyi/MMA/data/VQAv2' #followed by train2014/
+# vqa_root: '/data/ziyi/MMA/data/VQAv2' #followed by train2014/
 #vg_root: '/export/share/datasets/vision/visual-genome/'  #followed by image/
 train_files: ['vqa_train','vqa_val']
 ann_root: 'annotation'
 
 # set pretrained as a file path or an url
-pretrained: '/data/ziyi/BLIP_model/model_vqa.pth'
+pretrained: 'https://storage.googleapis.com/sfr-vision-language-research/BLIP/models/model_vqa.pth'
 
 # size of vit model; base or large
 vit: 'base'
