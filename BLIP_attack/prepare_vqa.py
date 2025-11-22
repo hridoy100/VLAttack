@@ -7,7 +7,7 @@
 '''
 import argparse
 import os
-import ruamel.yaml as yaml
+from ruamel.yaml import YAML
 import numpy as np
 import random
 # from models.med import BertTokenizer
@@ -132,14 +132,18 @@ if __name__ == '__main__':
     parser.add_argument('--distributed', default=False, type=bool)
     args = parser.parse_args()
 
-    config = yaml.load(open(args.config, 'r'), Loader=yaml.Loader)
-    config_pretrain = yaml.load(open(args.config_pre, 'r'), Loader=yaml.Loader)
+    yaml = YAML(typ='rt')
+    with open(args.config, 'r') as f:
+        config = yaml.load(f)
+    with open(args.config_pre, 'r') as f:
+        config_pretrain = yaml.load(f)
 
     args.result_dir = os.path.join(args.output_dir, 'result')
 
     Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     Path(args.result_dir).mkdir(parents=True, exist_ok=True)
         
-    yaml.dump(config, open(os.path.join(args.output_dir, 'config.yaml'), 'w'))    
+    with open(os.path.join(args.output_dir, 'config.yaml'), 'w') as f:
+        yaml.dump(config, f)
     
     main(args, config,config_pretrain)
