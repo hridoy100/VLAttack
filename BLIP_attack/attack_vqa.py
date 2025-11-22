@@ -82,7 +82,22 @@ def main(args, config, config_pretrain):
     with open(args.correct_pred_store, 'r') as f:
         answer_list = json.load(f)
 
-    pgd_attack = Adv_attack(model, pretrain_model, tokenizer, device, correct_list,answer_list,USE_model)
+    joint_cfg = None
+    if args.method == 'JointVLA':
+        joint_cfg = {
+            "epsilon": args.joint_epsilon,
+            "alpha": args.joint_alpha,
+            "steps": args.joint_steps,
+            "max_edits": args.joint_max_edits,
+            "lambda_init": args.joint_lambda,
+            "rho": args.joint_rho,
+            "patience": args.joint_patience,
+            "modality_switch_prob": args.joint_modality_switch_prob,
+        }
+    if joint_cfg:
+        pgd_attack = Adv_attack(model, pretrain_model, tokenizer, device, correct_list,answer_list,USE_model, joint_cfg=joint_cfg)
+    else:
+        pgd_attack = Adv_attack(model, pretrain_model, tokenizer, device, correct_list,answer_list,USE_model)
     pgd_attack.evaluate(test_loader, tokenizer)
 
 
@@ -102,6 +117,14 @@ if __name__ == '__main__':
     parser.add_argument('--world_size', default=1, type=int, help='number of distributed processes')
     parser.add_argument('--dist_url', default='env://', help='url used to set up distributed training')
     parser.add_argument('--distributed', default=False, type=bool)
+    parser.add_argument('--joint_epsilon', type=float, default=0.125, help='JointVLA: max L_inf budget for image')
+    parser.add_argument('--joint_alpha', type=float, default=0.01, help='JointVLA: PGD step size')
+    parser.add_argument('--joint_steps', type=int, default=40, help='JointVLA: total optimization steps')
+    parser.add_argument('--joint_max_edits', type=int, default=3, help='JointVLA: max text edits')
+    parser.add_argument('--joint_lambda', type=float, default=0.1, help='JointVLA: initial Lagrange weight')
+    parser.add_argument('--joint_rho', type=float, default=0.5, help='JointVLA: Lagrange update factor')
+    parser.add_argument('--joint_patience', type=int, default=5, help='JointVLA: plateau patience for image updates')
+    parser.add_argument('--joint_modality_switch_prob', type=float, default=0.25, help='JointVLA: probability of choosing a text step when budget allows')
     args = parser.parse_args()
     if args.method=='BERTAttack':
         module=importlib.import_module('attack.VQA.adv_attack_BERTattack')
@@ -114,6 +137,9 @@ if __name__ == '__main__':
         Adv_attack =getattr(module,'Adv_attack')
     elif args.method == 'VLAttack':
         module = importlib.import_module('attack.VQA.adv_attack_blip_vla')
+        Adv_attack =getattr(module,'Adv_attack')
+    elif args.method == 'JointVLA':
+        module = importlib.import_module('JointVLA.vqa_attack')
         Adv_attack =getattr(module,'Adv_attack')
     else:
         print('attack method is not supported!')
